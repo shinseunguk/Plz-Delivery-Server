@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="HomeMapper">
+
+	<select id="selectNow" resultType="String"><!-- VO오류 발생  -->
+		SELECT NOW()
+	</select>
+	
+	<select id="register" resultType="com.lusv.myapp.ComusermVO">
+		SELECT * FROM COMUSERM
+	</select>
+	
+	<!-- 회원가입 -->
+	<insert id="signup" parameterType="hashMap">
+		INSERT INTO COMUSERM VALUES(#{id},#{password},#{name},#{tel},#{birth},#{gender},#{address1},#{address2})
+	</insert>
+	
+	<!-- 중복확인 -->
+	<select id="checkEmail" parameterType="hashMap" resultType="com.lusv.myapp.ComusermVO">
+		SELECT * FROM COMUSERM WHERE id = #{id}
+	</select>
+	
+	<!-- 로그인 -->
+	<select id="checkLogin" parameterType="hashMap" resultType="com.lusv.myapp.ComusermVO">
+		SELECT * FROM COMUSERM
+		WHERE id = #{id}
+		and password = #{pw}
+	</select>
+	<!-- 신청하기 -->
+	<insert id="apply" parameterType="hashMap">
+		INSERT INTO APPLY(apply_name, apply_tel, start_address1, departure_time, arrive_time, exchange_item, apply_price, arrive_name, arrive_tel, end_address1, start_address2, end_address2,apply_id, delivery_yn, delivery_id)
+		VALUES(#{applyName}, #{applyTel}, #{startAddress1}, #{startingDate}, #{endingDate}, #{applyItem}, #{applyPrice}, #{arriveName}, #{arriveTel}, #{endingAddress1}, #{startAddress2}, #{endingAddress2}, #{applyId}, 'N', 'ND') 
+	</insert>
+	<!-- 전체 직거래 -->
+	<select id="applylist" resultType="com.lusv.myapp.ApplyVO">
+		SELECT *
+		<!-- apply_name, apply_tel, startAddress, departure_time, arrive_time, exchange_item, apply_price, arrive_name, arrive_tel, endAddress --> 
+		FROM APPLY
+		WHERE delivery_yn = 'N'
+	</select>
+	<!-- 내 직거래 신청 목록 -->
+	<select id="myapplylist" parameterType="String" resultType="com.lusv.myapp.ApplyVO">
+		SELECT *
+		FROM APPLY
+		WHERE apply_id = #{userId}
+	</select>
+	<!-- 내가 배달중인 직거래 -->
+	<select id="mydelivery" parameterType="String" resultType="com.lusv.myapp.ApplyVO">
+		SELECT *
+		FROM APPLY
+		WHERE delivery_id = #{userId}
+	</select>
+	<!-- 의뢰 리스트 자세히보기 -->
+	<select id="applyview" parameterType="Integer" resultType="com.lusv.myapp.ApplyVO">
+		SELECT * 
+		<!-- apply_name, apply_tel, startAddress, departure_time, arrive_time, exchange_item, apply_price, arrive_name, arrive_tel, endAddress --> 
+		FROM APPLY 
+		WHERE seq = #{seq}
+	</select>
+	<!-- 체크박스 클릭 -->
+	<select id="checkbox" parameterType="String" resultType="com.lusv.myapp.ComusermVO">
+		SELECT * 
+		FROM COMUSERM
+		WHERE id = #{userId}
+	</select>
+	<!-- 배달 삭제 -->
+	<delete id="deletedelivery" parameterType="int">
+		DELETE 
+		FROM APPLY
+		WHERE
+		seq = #{seq} 
+	</delete>
+	<!-- 배달하기 -->
+	<update id="deliver" parameterType="hashMap">
+		UPDATE APPLY
+		SET delivery_yn = 'P', delivery_id = #{userId} 
+		WHERE seq = #{seq}
+	</update>
+	<!-- 배달완료 -->
+	<update id="deliverysuc" parameterType="hashMap">
+		UPDATE APPLY
+		SET delivery_yn = 'Y'  
+		WHERE seq = #{seq}
+		AND delivery_id = #{userId}
+	</update>
+	<!-- 정보수정 -->
+	<update id="userinfo" parameterType="hashMap">
+		UPDATE COMUSERM
+		SET name = #{name},
+		tel = #{tel},
+		address1 =#{address1},
+		address2 =#{address2}
+		WHERE id = #{userId}
+	</update>
+</mapper>
