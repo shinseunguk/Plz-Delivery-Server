@@ -1,6 +1,6 @@
 package com.lusv.myapp;
 
-public class ComusermVO {
+public class ComusermVO {//ㅇ
 	private String id;
 	private String password;
 	private String name;
