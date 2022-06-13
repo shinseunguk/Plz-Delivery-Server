@@ -44,7 +44,7 @@ public class HomeDAO {
 		boolean result ;
 		List<ComusermVO> comusermVO= mybatis.selectList("HomeMapper.checkEmail", reqeustMap); 
 		
-		if(comusermVO != null) { // select 값있음 > 중복 
+		if(comusermVO.size() != 0) { // select 값있음 > 중복 
 			result = false;
 		}else {
 			result = true;
@@ -65,9 +65,9 @@ public class HomeDAO {
 		return comusermVO;
 	}
 	
-	public int apply (Map<String, String> reqeustMap) {
-		logger.info("requestMap...{}",reqeustMap);
-		int result = mybatis.insert("HomeMapper.apply", reqeustMap);
+	public int apply (Map<String, String> requestMap) {
+		logger.info("requestMap...{}",requestMap);
+		int result = mybatis.insert("HomeMapper.apply", requestMap);
 		
 		return result;
 	}
@@ -75,6 +75,60 @@ public class HomeDAO {
 	public List<ApplyVO> applyList() {
 		List<ApplyVO> list = mybatis.selectList("HomeMapper.applylist");
 		return list;
+	}
+	
+	public List<BoardVO> boardList() {
+		List<BoardVO> list = mybatis.selectList("HomeMapper.boardlist");
+		return list;
+	}
+	
+	public BoardVO boardDetail(long id) {
+		BoardVO boardVO = mybatis.selectOne("HomeMapper.boardDetail", id);
+		return boardVO;
+	}
+	
+	public boolean boardWrite(Map<String, String> requestMap) {
+		boolean result = false;
+		int mybatisResult = mybatis.insert("HomeMapper.boardWrite", requestMap);
+		if(mybatisResult == 1) {
+			result = true;
+		}else {
+			result = false;
+		}
+		return result;
+	}
+	
+	public boolean boardEdit(Map<String, Object> requestMap) {
+		boolean result = false;
+		int mybatisResult = mybatis.update("HomeMapper.boardEdit", requestMap);
+		if(mybatisResult == 1) {
+			result = true;
+		}else {
+			result = false;
+		}
+		return result;
+	}
+	
+	public boolean accusation(Map<String, String> requestMap) {
+		boolean result = false;
+		int mybatisResult = mybatis.insert("HomeMapper.accusation", requestMap);
+		if(mybatisResult == 1) {
+			result = true;
+		}else {
+			result = false;
+		}
+		return result;
+	}
+	
+	public boolean boardDelete(long id) {
+		boolean result = false;
+		int mybatisResult = mybatis.delete("HomeMapper.boardDelete", id);
+		if(mybatisResult == 1) {
+			result = true;
+		}else {
+			result = false;
+		}
+		return result;
 	}
 	
 	public List<ApplyVO> myApplyList(String userId) {
@@ -118,6 +172,11 @@ public class HomeDAO {
 		int result = mybatis.update("HomeMapper.userinfo", parameterMap);
 		logger.info("userInfo result.. " + result);
 		return result;
+	}
+	
+	public List<AccusationVO> singoList() {
+		List<AccusationVO> list = mybatis.selectList("HomeMapper.singoList");
+		return list;
 	}
 	
 }

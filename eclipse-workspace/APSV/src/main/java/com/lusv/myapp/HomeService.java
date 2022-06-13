@@ -52,7 +52,31 @@ public class HomeService {
 	public List<ApplyVO> applyList(){
 		return homeDAO.applyList();
 	}
-//	내 직거래 신청 목
+//  게시판 목록
+	public List<BoardVO> boardList(){
+		return homeDAO.boardList();
+	}
+//  게시판 목록
+	public boolean boardWrite(Map<String, String> requestMap){
+		return homeDAO.boardWrite(requestMap);
+	}
+//  게시판 목록
+	public boolean boardEdit(Map<String, Object> requestMap){
+		return homeDAO.boardEdit(requestMap);
+	}
+//  게시판 삭제
+	public boolean boardDelete(long id){
+		return homeDAO.boardDelete(id);
+	}
+//  게시판 선택시
+	public BoardVO boardDetail(long id){
+		return homeDAO.boardDetail(id);
+	}
+//  게시판 목록
+	public boolean accusation(Map<String, String> requestMap){
+		return homeDAO.accusation(requestMap);
+	}
+//	내 직거래 신청 목록
 	public List<ApplyVO> myApplyList(String userId){
 		return homeDAO.myApplyList(userId);
 	}
@@ -83,5 +107,9 @@ public class HomeService {
 //	정보수정
 	public int userInfo(Map<String, String> parameterMap){
 		return homeDAO.userInfo(parameterMap);
+	}
+//	관리자 페이지 오픈
+	public List<AccusationVO> singoList(){
+		return homeDAO.singoList();
 	}
 }

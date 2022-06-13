@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 /**
  * Handles requests for the application home page.d
  */
+
 @Controller
 @SessionAttributes("member")
 public class HomeController {
@@ -79,6 +80,12 @@ public class HomeController {
 		logger.info("API 호출");
 		
 		return "address";
+	}
+	
+	@RequestMapping(value = "/tables")
+	public String admin(){
+		
+		return "tables";
 	}
 	
 	@RequestMapping(value = "/address2")
@@ -137,6 +144,7 @@ public class HomeController {
 		boolean result = homeService.checkEmail(requestMap);
 		
 		String result2 = String.valueOf(result);
+		logger.info("result => " + result);
 		return result2 ;
 	}
 	
@@ -156,6 +164,7 @@ public class HomeController {
 		String arriveTel = request.getParameter("arriveTel");
 		String startingDate = request.getParameter("startingDate");
 		String endingDate = request.getParameter("endingDate");
+		String applyId = request.getParameter("applyId");
 		
 		
 		logger.info("log######### "+ startAddress1);
@@ -170,6 +179,7 @@ public class HomeController {
 		logger.info("log######### "+ arriveTel);
 		logger.info("log######### "+ startingDate);
 		logger.info("log######### "+ endingDate);
+		logger.info("log######### "+ applyId);
 		
 		Map<String, String> requestMap = new HashMap<String, String>();
 		requestMap.put("startAddress1", startAddress1);
@@ -184,7 +194,8 @@ public class HomeController {
 		requestMap.put("arriveTel", arriveTel);
 		requestMap.put("startingDate", startingDate);
 		requestMap.put("endingDate", endingDate);
-		requestMap.put("applyId", (String) session.getAttribute("member"));
+		requestMap.put("applyId", applyId);
+		
 		int result = homeService.apply(requestMap);
 		
 		return result; 
@@ -199,11 +210,31 @@ public class HomeController {
 		return list; 
 	}
 	
+	@RequestMapping(value = "/boardList")
+	@ResponseBody
+	public List<BoardVO> boardList(HttpServletRequest request, HttpSession session) {
+		logger.info("boardList.. ");
+		List<BoardVO> list = homeService.boardList();
+		
+		return list; 
+	}
+	
+	
+	@RequestMapping(value = "/boardDetail")
+	@ResponseBody
+	public BoardVO boardDetail(HttpServletRequest request, HttpSession session) {
+		logger.info("boardDetail.. " + Long.valueOf(request.getParameter("id")) +" select");
+		long id = Long.valueOf(request.getParameter("id"));
+		BoardVO boardVO = homeService.boardDetail(id);
+		
+		return boardVO; 
+	}
+	
 	@RequestMapping(value = "/myapplylist")
 	@ResponseBody
 	public List<ApplyVO> myApplyList(HttpServletRequest request, HttpSession session) {
 		logger.info("myApplyList.. ");
-		List<ApplyVO> list = homeService.myApplyList((String) session.getAttribute("member"));
+		List<ApplyVO> list = homeService.myApplyList(request.getParameter("member"));
 		
 		return list; 
 	}
@@ -212,7 +243,7 @@ public class HomeController {
 	@ResponseBody
 	public List<ApplyVO> myDelivery(HttpServletRequest request, HttpSession session) {
 		logger.info("myDelivery.. ");
-		List<ApplyVO> list = homeService.myDelivery((String) session.getAttribute("member"));
+		List<ApplyVO> list = homeService.myDelivery(request.getParameter("member"));
 		
 		return list; 
 	}
@@ -249,7 +280,7 @@ public class HomeController {
 		
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put("seq", seq);
-		parameterMap.put("userId", (String) session.getAttribute("member"));
+		parameterMap.put("userId", request.getParameter("member"));
 		logger.info("deliver...{}", parameterMap.toString());
 		
 		result = homeService.deliver(parameterMap);
@@ -267,7 +298,7 @@ public class HomeController {
 		
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put("seq", seq);
-		parameterMap.put("userId", (String) session.getAttribute("member"));
+		parameterMap.put("userId", request.getParameter("member"));
 		logger.info("deliver...{}", parameterMap.toString());
 		
 		result = homeService.deliverySuc(parameterMap);
@@ -302,9 +333,9 @@ public class HomeController {
 		if(comusermVO != null) { 
 //			session.invalidate();
 			session.setAttribute("member", comusermVO.getId());
+			logger.info("comusermVO.getId()...{id="+ comusermVO.getId() +"}");
 		}
 		
-		logger.info("comusermVO.getId()...{id="+ comusermVO.getId() +"}");
 		
 //		logger.info("getSession /login... " + userId);
 		return result; 
@@ -313,13 +344,14 @@ public class HomeController {
 	@RequestMapping(value = "/checkbox")
 	@ResponseBody
 	public List<ComusermVO> checkBox(HttpServletRequest request, @RequestHeader Map<String, String> data, HttpSession session, HttpServletResponse response){
+		String userId = request.getParameter("member");
 		Cookie[] myCookies = request.getCookies();
 
-		logger.info("header "+ data);
+//		logger.info("header "+ data);
 //		logger.info("sessionGet,,,,1"+ userId);
-		logger.info("(String) session.getAttribute(\"member\") -> "+(String) session.getAttribute("member"));
+//		logger.info("(String) session.getAttribute(\"member\") -> "+(String) session.getAttribute("member"));
 		 
-		List<ComusermVO> list = homeService.checkBox((String) session.getAttribute("member"));
+		List<ComusermVO> list = homeService.checkBox(userId);
 		return list; 
 	}
 	
@@ -336,10 +368,74 @@ public class HomeController {
 		requestMap.put("tel", tel);
 		requestMap.put("address1", address1);
 		requestMap.put("address2", address2);
-		requestMap.put("userId", (String) session.getAttribute("member"));
+		requestMap.put("userId", request.getParameter("member"));
 		
 		int result = homeService.userInfo(requestMap);
 		
+		return result;
+	}
+	
+	@RequestMapping(value = "/accusation")
+	@ResponseBody
+	public boolean accusation(HttpServletRequest request){
+		logger.info("/accusation =>");
+		String member = request.getParameter("member");
+		String reported_Id = request.getParameter("reported_Id");
+		String accusation_content = request.getParameter("accusation_content");
+		
+		Map<String, String> requestMap = new HashMap<String, String>();
+		requestMap.put("member", member);
+		requestMap.put("reported_Id", reported_Id);
+		requestMap.put("accusation_content", accusation_content);
+		
+		boolean result = homeService.accusation(requestMap);
+		
+		return result;
+	}
+	
+	@RequestMapping(value = "/boardWrite")
+	@ResponseBody
+	public boolean boardWrite(HttpServletRequest request){
+		String member = request.getParameter("member");
+		String title = request.getParameter("title");
+		String content = request.getParameter("content");
+		String date = request.getParameter("date");
+		
+		Map<String, String> requestMap = new HashMap<String, String>();
+		requestMap.put("member", member);
+		requestMap.put("title", title);
+		requestMap.put("content", content);
+		
+		boolean result = homeService.boardWrite(requestMap);
+		
+		return result;
+	}
+	
+	@RequestMapping(value = "/boardEdit")
+	@ResponseBody
+	public boolean boardEdit(HttpServletRequest request){
+		String member = request.getParameter("member");
+		String title = request.getParameter("title");
+		String content = request.getParameter("content");
+		String date = request.getParameter("date");
+		
+		Map<String, Object> requestMap = new HashMap<String, Object>();
+		requestMap.put("member", member);
+		requestMap.put("title", title);
+		requestMap.put("content", content);
+		requestMap.put("id", Long.valueOf(request.getParameter("id")));
+		
+		boolean result = homeService.boardEdit(requestMap);
+		
+		return result; 
+	}
+	
+	@RequestMapping(value = "/boardDelete")
+	@ResponseBody
+	public boolean boardDelete(HttpServletRequest request){
+		logger.info("boardDelete.. " + Long.valueOf(request.getParameter("id")) +" delete");
+		long id = Long.valueOf(request.getParameter("id"));
+		boolean result = homeService.boardDelete(id);
 		return result;
 	}
 	
@@ -351,5 +447,14 @@ public class HomeController {
 		//session.invalidate();
 		
 		return true;
+	}
+	
+	@RequestMapping(value = "/singo")
+	@ResponseBody
+	public List<AccusationVO> singoList(HttpServletRequest request, HttpSession session) {
+//		logger.info("applyList.. ");
+		List<AccusationVO> list = homeService.singoList();
+		
+		return list; 
 	}
 }

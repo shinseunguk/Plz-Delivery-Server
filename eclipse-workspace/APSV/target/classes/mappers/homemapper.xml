@@ -15,6 +15,11 @@
 		INSERT INTO COMUSERM VALUES(#{id},#{password},#{name},#{tel},#{birth},#{gender},#{address1},#{address2})
 	</insert>
 	
+	<!-- 게시판 작성 -->
+	<insert id="boardWrite" parameterType="hashMap">
+		INSERT INTO BOARD(content, localDateTime, title, member) VALUES(#{content}, SYSDATE(), #{title}, #{member})
+	</insert>
+	
 	<!-- 중복확인 -->
 	<select id="checkEmail" parameterType="hashMap" resultType="com.lusv.myapp.ComusermVO">
 		SELECT * FROM COMUSERM WHERE id = #{id}
@@ -38,6 +43,32 @@
 		FROM APPLY
 		WHERE delivery_yn = 'N'
 	</select>
+	<!-- 게시판 목록  -->
+	<select id="boardlist" resultType="com.lusv.myapp.BoardVO">
+		SELECT *
+		FROM BOARD
+		ORDER BY localDateTime
+	</select>
+	<!-- 게시판 선택시 -->
+	<select id="boardDetail" resultType="com.lusv.myapp.BoardVO" parameterType="long">
+		SELECT *
+		FROM BOARD
+		WHERE id = #{id}
+	</select>
+	<!-- 게시판 삭제 -->
+	<delete id="boardDelete" parameterType="long">
+		DELETE 
+		FROM BOARD
+		WHERE id = #{id} 
+	</delete>
+	<!-- 게시판 삭제 -->
+	<update id="boardEdit" parameterType="hashMap">
+		UPDATE BOARD SET
+		title = #{title},
+		localDateTime = SYSDATE(),
+		content = #{content}
+		WHERE id = #{id}
+	</update>
 	<!-- 내 직거래 신청 목록 -->
 	<select id="myapplylist" parameterType="String" resultType="com.lusv.myapp.ApplyVO">
 		SELECT *
@@ -83,6 +114,11 @@
 		WHERE seq = #{seq}
 		AND delivery_id = #{userId}
 	</update>
+	<!-- 신청하기 -->
+	<insert id="accusation" parameterType="hashMap">
+		INSERT INTO accusation(member, reported_id, accusation_content)
+		VALUES(#{member}, #{reported_Id}, #{accusation_content}) 
+	</insert>
 	<!-- 정보수정 -->
 	<update id="userinfo" parameterType="hashMap">
 		UPDATE COMUSERM
@@ -92,4 +128,8 @@
 		address2 =#{address2}
 		WHERE id = #{userId}
 	</update>
+	<!-- 체크박스 클릭 -->
+	<select id="singoList" parameterType="String" resultType="com.lusv.myapp.AccusationVO">
+		SELECT * FROM ACCUSATION 
+	</select>
 </mapper>
